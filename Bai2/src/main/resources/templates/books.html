@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách sách</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #2d3a4b;
+            margin-top: 40px;
+        }
+        a[href="/books/add"] {
+            display: inline-block;
+            background: #1976d2;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 18px;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        a[href="/books/add"]:hover {
+            background: #1256a3;
+        }
+        table {
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 600px;
+            margin-bottom: 40px;
+        }
+        th, td {
+            padding: 12px 18px;
+            text-align: left;
+        }
+        th {
+            background: #1976d2;
+            color: #fff;
+            font-weight: 700;
+        }
+        tr:nth-child(even) {
+            background: #f4f6fb;
+        }
+        tr:hover {
+            background: #e3eaf6;
+        }
+        td a {
+            display: inline-block;
+            background: #e0e7ef;
+            color: #1976d2;
+            padding: 6px 14px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+        td a:hover {
+            background: #1976d2;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Danh sách sách</h1>
+    <a href="/books/add">Thêm sách mới</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Tác giả</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="book : ${books}">
+                <td th:text="${book.id}"></td>
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.author}"></td>
+                <td>
+                    <a th:href="@{/books/edit/{id}(id=${book.id})}">Sửa</a>
+                    <a th:href="@{/books/delete/{id}(id=${book.id})}">Xóa</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

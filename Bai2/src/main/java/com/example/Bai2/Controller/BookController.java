@@ -1,51 +1,62 @@
 package com.example.Bai2.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.example.Bai2.Service.BookService;
-// import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import com.example.Bai2.Model.Book;
-import java.util.List;
+import com.example.Bai2.Service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
-@RequestMapping("/api/books")
+@Controller
+@RequestMapping("/books")
 public class BookController {
 
-	@Autowired
-	private BookService bookService;
+    @Autowired
+    private BookService bookService;
 
-	@GetMapping
-	public List<Book> getAllBooks() {
-		return bookService.getAllBooks();
-	}
+    @GetMapping
+    public String listBooks(Model model) {
+        model.addAttribute("books", bookService.getAllBooks());
+        return "books";
+    }
 
-	@GetMapping("/{id}")
-	public Book getBookById(@PathVariable int id) {
-		return bookService.getBookById(id);
-	}
+    // Hiển thị form thêm sách
+    @GetMapping("/add")
+    public String addBookForm(Model model) {
+        model.addAttribute("book", new Book());
+        return "add-book";
+    }
 
-	@PostMapping
-	public String addBook(@RequestBody Book book) {
-		bookService.addBook(book);
-		return "Book added successfully!";
-	}
+    // Thêm sách mới
+    @PostMapping("/add")
+    public String addBook(@ModelAttribute Book book) {
+        bookService.addBook(book);
+        return "redirect:/books";
+    }
 
-	@PutMapping("/{id}")
-	public String updateBook(@PathVariable int id, @RequestBody Book updatedBook) {
-		bookService.updateBook(id, updatedBook);
-		return "Book updated successfully!";
-	}
+    // Hiển thị form sửa sách
+    @GetMapping("/edit/{id}")
+    public String editBookForm(@PathVariable Long id, Model model) {
+        bookService.getBookById(id).ifPresent(book -> 
+            model.addAttribute("book", book));
+        return "edit-book";
+    }
 
-	@DeleteMapping("/{id}")
-	public String deleteBook(@PathVariable int id) {
-		bookService.deleteBook(id);
-		return "Book deleted successfully!";
-	}
+    // Cập nhật sách
+    @PostMapping("/edit")
+    public String updateBook(@ModelAttribute Book book) {
+        bookService.updateBook(book);
+        return "redirect:/books";
+    }
+
+    // Xóa sách
+    @GetMapping("/delete/{id}")
+    public String deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return "redirect:/books";
+    }
 }

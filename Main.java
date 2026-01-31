@@ -11,16 +11,16 @@ public class Main {
         List<Book> listBooks = new ArrayList<>();
         Scanner x = new Scanner(System.in);
         String msg = """
-                Chương trình quản lý sách
-                1. Thêm 1 cuốn sách
-                2. Xóa 1 cuốn sách
-                3. Thay đổi sách
-                4. Xuất thông tin
-                5. Tìm sách lập trình
-                6. Lấy sách tối đa theo giá
-                7. Tìm kiếm theo tác giả
-                0. Thoát
-                Chọn chức năng: """;
+                Chuon trinh quan ly sach
+                1. Them 1 cuon sach
+                2. Xoa 1 cuon sach
+                3. Thay doi sach
+                4. Xuat thong tin
+                5. Tim sach lap trinh
+                6. Lay sach toi da theo gia
+                7. Tim kiem theo tac gia
+                0. Thoat
+                Chon chuc nang: """;
 
         int chon = 0;
         do {
@@ -33,37 +33,37 @@ public class Main {
                     listBooks.add(newBook);
                 }
                 case 2 -> {
-                    System.out.print("Nhập vào mã sách cần xóa: ");
+                    System.out.print("Nhap vao ma sach can xoa: ");
                     int bookId = x.nextInt();
                     //Kiểm tra mã sách
                     Book find = listBooks.stream().filter(p -> p.getId() == bookId).findFirst().orElseThrow();
                     listBooks.remove(find);
-                    System.out.println("Đã xóa sách thành công!");
+                    System.out.println("Da xoa sach thanh cong!");
                 }
                 case 3 -> {
-                    System.out.println("Nhập mã sách cần điều chỉnh: ");
+                    System.out.println("Nhap ma sach can dieu chinh: ");
                     int bookId = x.nextInt();
                     Book find = listBooks.stream().filter(p -> p.getId() == bookId).findFirst().orElseThrow();
                 }
                 case 4 -> {
-                    System.out.println("Xuất thông tin danh sách ");
+                    System.out.println("Xuat thong tin danh sach ");
                     listBooks.forEach(p -> p.output());
                 }
                 case 5 -> {
                     List<Book> list5 = listBooks.stream()
-                            .filter(p -> p.getTitle().toLowerCase().contains("lập trình"))
+                            .filter(p -> p.getTitle().toLowerCase().contains("lap trinh"))
                             .toList();
                     list5.forEach(Book::output);
                 }
                 case 6 -> {
-                    System.out.println("Sách có giá cao nhất: ");
+                    System.out.println("Sach co gia cao nhat: ");
                     listBooks.stream()
                         .sorted((b1, b2) -> Double.compare(b2.getPrice(), b1.getPrice()))
                         .limit(1)
                         .forEach(Book::output);
                 }
                 case 7-> {
-                    System.out.print("Nhập tên tác giả cần tìm: ");
+                    System.out.print("Nhap ten tac gia can tim: ");
                     x.nextLine();
                     String inputArr = x.nextLine();
 
@@ -71,8 +71,8 @@ public class Main {
                         .map(p -> p.trim().toLowerCase())
                         .collect(Collectors.toSet());
 
-                    System.out.println("Kết quả tìm kiếm:");
-    
+                    System.out.println("Ket qua tim kiem:");
+
                     listBooks.stream()
                         .filter(p -> authorSet.contains(p.getAuthor().toLowerCase())) 
                         .forEach(Book::output);

@@ -52,13 +52,13 @@ public class Book {
     //Hàm nhập sách
     public void input() {
         Scanner x = new Scanner(System.in);
-        System.out.print("Nhập mã sách: ");
+        System.out.print("Nhap ma sach: ");
         this.id = Integer.parseInt(x.nextLine());
-        System.out.print("Nhập tên sách: "); 
+        System.out.print("Nhap ten sach: "); 
         this.title = x.nextLine();
-        System.out.print("Nhập tác giả: "); 
+        System.out.print("Nhap tac gia: "); 
         this.author = x.nextLine();
-        System.out.print("Nhập đơn giá: "); 
+        System.out.print("Nhap don gia: "); 
         this.price = x.nextLong();
     }
     //Hàm xuất sách

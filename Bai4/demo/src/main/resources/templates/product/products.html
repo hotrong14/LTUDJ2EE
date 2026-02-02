@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      layout:decorate="~{_layout}">
+<head>
+    <title>List Products</title>
+</head>
+<body>
+<div layout:fragment="content" class="container body-content">
+    <a th:href="@{/products/create}" class="btn btn-primary">Create New Product</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th><th>Name</th><th>Price</th><th>Image</th><th>Category Name</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="product : ${listproduct}">
+                <th th:text="${product.id}"></th>
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.price}"></td>
+                <td><img height="120" width="150" th:src="@{/images/} + ${product.image}"></td>
+                <td th:text="${product.category?.name}"></td>
+                <td>
+                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-secondary">Edit</a>
+                    <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

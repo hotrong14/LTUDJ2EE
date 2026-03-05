@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+    <title>Danh sách sản phẩm</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-danger">Danh sách sản phẩm</h2>
+        <a th:href="@{/products/add}" class="btn btn-success">
+            Thêm sản phẩm mới
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(products)}" class="alert alert-info">
+        Hiện chưa có sản phẩm nào.
+        <a th:href="@{/products/add}" class="fw-bold">Thêm ngay</a>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(products)}" class="card p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Hình ảnh</th>
+                    <th>Danh mục</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}"></td>
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+
+                    <td>
+                        <img th:src="@{'/assets/' + ${product.image} + '?t=' + ${product.id}}"
+                             width="120"
+                            class="img-thumbnail">
+                    </td>
+
+                    <td th:text="${product.category != null ? product.category.name : '-'}"></td>
+
+                    <td class="text-center">
+                        <a th:href="@{/products/edit/{id}(id=${product.id})}"
+                           class="btn btn-sm btn-primary">
+                            Chỉnh sửa
+                        </a>
+
+                        <a th:href="@{/products/delete/{id}(id=${product.id})}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                            Xóa
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

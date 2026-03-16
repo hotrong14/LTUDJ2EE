@@ -15,62 +15,57 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+	@Autowired
+	private CustomUserDetailsService userDetailsService;
 
-    @Autowired
-    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+	@Autowired
+	private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/enroll/**").hasRole("STUDENT")
-                .requestMatchers("/my-courses").hasRole("STUDENT")
-                .requestMatchers("/courses", "/home", "/", "/register", "/login",
-                                 "/css/**", "/js/**", "/images/**", "/uploads/**",
-                                 "/webjars/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/home", true)
-                .failureUrl("/login?error=true")
-                .permitAll()
-            )
-            .oauth2Login(oauth -> oauth
-                .loginPage("/login")
-                .successHandler(oAuth2LoginSuccessHandler)
-                .failureUrl("/login?error=true")
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=true")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .permitAll()
-            )
-            .exceptionHandling(ex -> ex
-                .accessDeniedPage("/access-denied")
-            );
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+						.requestMatchers("/enroll/**", "/my-courses").hasRole("STUDENT")
+						.requestMatchers(
+								"/", "/home", "/courses", "/register", "/login",
+								"/css/**", "/js/**", "/images/**", "/uploads/**",
+								"/webjars/**", "/oauth2/**", "/error")
+						.permitAll()
+						.anyRequest().authenticated())
+				.formLogin(form -> form
+						.loginPage("/login")
+						.loginProcessingUrl("/login")
+						.defaultSuccessUrl("/home", true)
+						.failureUrl("/login?error=true")
+						.permitAll())
+				.oauth2Login(oauth -> oauth
+						.loginPage("/login")
+						.successHandler(oAuth2LoginSuccessHandler)
+						.failureUrl("/login?error=true"))
+				.logout(logout -> logout
+						.logoutUrl("/logout")
+						.logoutSuccessUrl("/login?logout=true")
+						.invalidateHttpSession(true)
+						.clearAuthentication(true)
+						.permitAll())
+				.exceptionHandling(ex -> ex
+						.accessDeniedPage("/access-denied"));
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authBuilder =
-            http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoder());
-        return authBuilder.build();
-    }
+	@Bean
+	public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+		AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+		authBuilder
+				.userDetailsService(userDetailsService)
+				.passwordEncoder(passwordEncoder());
+		return authBuilder.build();
+	}
 }

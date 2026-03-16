@@ -14,22 +14,23 @@ import java.util.stream.Collectors;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private StudentRepository studentRepository;
+	@Autowired
+	private StudentRepository studentRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Student student = studentRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Student student = studentRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user: " + username));
 
-        Set<GrantedAuthority> authorities = student.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-            .collect(Collectors.toSet());
+		// Role trong DB đã có prefix "ROLE_" (vd: "ROLE_STUDENT")
+		// nên dùng trực tiếp, KHÔNG thêm prefix nữa
+		Set<GrantedAuthority> authorities = student.getRoles().stream()
+				.map(role -> new SimpleGrantedAuthority(role.getName()))
+				.collect(Collectors.toSet());
 
-        return new org.springframework.security.core.userdetails.User(
-            student.getUsername(),
-            student.getPassword(),
-            authorities
-        );
-    }
+		return new org.springframework.security.core.userdetails.User(
+				student.getUsername(),
+				student.getPassword(),
+				authorities);
+	}
 }

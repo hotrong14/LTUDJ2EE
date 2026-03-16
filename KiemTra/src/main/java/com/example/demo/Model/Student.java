@@ -3,41 +3,39 @@ package com.example.demo.Model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "student")
-@Data
+@Table(name = "students")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "student_id")
-    private Long studentId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "student_id")
+	private Long studentId;
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be 3-50 characters")
-    @Column(name = "username", unique = true, nullable = false, length = 50)
-    private String username;
+	@NotBlank(message = "Tên đăng nhập không được để trống")
+	@Size(min = 3, max = 50, message = "Tên đăng nhập phải từ 3-50 ký tự")
+	@Column(nullable = false, unique = true)
+	private String username;
 
-    @Column(name = "password", length = 255)
-    private String password;
+	@NotBlank(message = "Mật khẩu không được để trống")
+	@Size(min = 6, message = "Mật khẩu ít nhất 6 ký tự")
+	@Column(nullable = false)
+	private String password;
 
-    @Email(message = "Invalid email format")
-    @NotBlank(message = "Email is required")
-    @Column(name = "email", unique = true, nullable = false, length = 100)
-    private String email;
+	@NotBlank(message = "Email không được để trống")
+	@Email(message = "Email không hợp lệ")
+	@Column(nullable = false, unique = true)
+	private String email;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "student_role",
-        joinColumns = @JoinColumn(name = "student_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles;
-
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private Set<Enrollment> enrollments;
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "student_roles", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
 }

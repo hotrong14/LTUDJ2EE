@@ -9,29 +9,32 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/enroll")
 public class EnrollController {
 
-    @Autowired
-    private EnrollmentService enrollmentService;
+	@Autowired
+	private EnrollmentService enrollmentService;
 
-    @PostMapping("/{courseId}")
-    public String enroll(@PathVariable Long courseId,
-                         Authentication authentication,
-                         RedirectAttributes redirectAttributes) {
-        try {
-            enrollmentService.enroll(authentication.getName(), courseId);
-            redirectAttributes.addFlashAttribute("success", "Đăng ký học phần thành công!");
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/home";
-    }
+	@PostMapping("/enroll/{courseId}")
+	public String enroll(@PathVariable Long courseId,
+			Authentication authentication,
+			RedirectAttributes redirectAttributes) {
+		String message = enrollmentService.enroll(authentication.getName(), courseId);
+		if (message.contains("thành công")) {
+			redirectAttributes.addFlashAttribute("success", message);
+		} else {
+			redirectAttributes.addFlashAttribute("warning", message);
+		}
+		return "redirect:/home";
+	}
 
-    @GetMapping("/my-courses")
-    public String myCourses(Authentication authentication, Model model) {
-        model.addAttribute("enrollments",
-            enrollmentService.getEnrollmentsByUsername(authentication.getName()));
-        return "student/my-courses";
-    }
+	@GetMapping("/my-course")
+	public String myCourses(Authentication authentication, Model model) {
+		var enrollments = enrollmentService.getMyCourses(authentication.getName());
+		int totalCredits = enrollments.stream()
+				.mapToInt(e -> e.getCourse().getCredits())
+				.sum();
+		model.addAttribute("enrollments", enrollments);
+		model.addAttribute("totalCredits", totalCredits);
+		return "student/my-course";
+	}
 }

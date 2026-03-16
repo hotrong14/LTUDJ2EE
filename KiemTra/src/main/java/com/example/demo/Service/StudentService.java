@@ -15,52 +15,48 @@ import java.util.Set;
 @Service
 public class StudentService {
 
-    @Autowired
-    private StudentRepository studentRepository;
+	@Autowired
+	private StudentRepository studentRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+	@Autowired
+	private RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-    public Student register(Student student) {
-        if (studentRepository.existsByUsername(student.getUsername())) {
-            throw new RuntimeException("Username already exists: " + student.getUsername());
-        }
-        if (studentRepository.existsByEmail(student.getEmail())) {
-            throw new RuntimeException("Email already exists: " + student.getEmail());
-        }
+	public Student register(Student student) {
+		// Encode password
+		student.setPassword(passwordEncoder.encode(student.getPassword()));
 
-        student.setPassword(passwordEncoder.encode(student.getPassword()));
+		// Gán role ROLE_STUDENT mặc định
+		Role studentRole = roleRepository.findByName("ROLE_STUDENT")
+				.orElseThrow(() -> new RuntimeException(
+						"Role ROLE_STUDENT chưa có trong DB. Hãy chạy data.sql để seed roles!"));
 
-        Role studentRole = roleRepository.findByName("STUDENT")
-            .orElseThrow(() -> new RuntimeException("Role STUDENT not found"));
+		Set<Role> roles = new HashSet<>();
+		roles.add(studentRole);
+		student.setRoles(roles);
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(studentRole);
-        student.setRoles(roles);
+		return studentRepository.save(student);
+	}
 
-        return studentRepository.save(student);
-    }
+	public Optional<Student> findByUsername(String username) {
+		return studentRepository.findByUsername(username);
+	}
 
-    public Optional<Student> findByUsername(String username) {
-        return studentRepository.findByUsername(username);
-    }
+	public Optional<Student> findByEmail(String email) {
+		return studentRepository.findByEmail(email);
+	}
 
-    public Optional<Student> findByEmail(String email) {
-        return studentRepository.findByEmail(email);
-    }
+	public Student save(Student student) {
+		return studentRepository.save(student);
+	}
 
-    public Student save(Student student) {
-        return studentRepository.save(student);
-    }
+	public boolean existsByUsername(String username) {
+		return studentRepository.existsByUsername(username);
+	}
 
-    public boolean existsByUsername(String username) {
-        return studentRepository.existsByUsername(username);
-    }
-
-    public boolean existsByEmail(String email) {
-        return studentRepository.existsByEmail(email);
-    }
+	public boolean existsByEmail(String email) {
+		return studentRepository.existsByEmail(email);
+	}
 }

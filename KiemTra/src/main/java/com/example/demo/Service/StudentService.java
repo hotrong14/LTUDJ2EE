@@ -1,0 +1,66 @@
+package com.example.demo.Service;
+
+import com.example.demo.Model.Role;
+import com.example.demo.Model.Student;
+import com.example.demo.Repository.RoleRepository;
+import com.example.demo.Repository.StudentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+public class StudentService {
+
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public Student register(Student student) {
+        if (studentRepository.existsByUsername(student.getUsername())) {
+            throw new RuntimeException("Username already exists: " + student.getUsername());
+        }
+        if (studentRepository.existsByEmail(student.getEmail())) {
+            throw new RuntimeException("Email already exists: " + student.getEmail());
+        }
+
+        student.setPassword(passwordEncoder.encode(student.getPassword()));
+
+        Role studentRole = roleRepository.findByName("STUDENT")
+            .orElseThrow(() -> new RuntimeException("Role STUDENT not found"));
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(studentRole);
+        student.setRoles(roles);
+
+        return studentRepository.save(student);
+    }
+
+    public Optional<Student> findByUsername(String username) {
+        return studentRepository.findByUsername(username);
+    }
+
+    public Optional<Student> findByEmail(String email) {
+        return studentRepository.findByEmail(email);
+    }
+
+    public Student save(Student student) {
+        return studentRepository.save(student);
+    }
+
+    public boolean existsByUsername(String username) {
+        return studentRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return studentRepository.existsByEmail(email);
+    }
+}

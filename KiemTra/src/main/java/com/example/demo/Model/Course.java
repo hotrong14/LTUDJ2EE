@@ -3,6 +3,7 @@ package com.example.demo.Model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import java.util.List;
 
 @Entity
 @Table(name = "courses")
@@ -32,4 +33,7 @@ public class Course {
 	@ManyToOne
 	@JoinColumn(name = "category_id")
 	private Category category;
+
+	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Enrollment> enrollments;
 }

@@ -139,7 +139,7 @@
 
             <!-- ADMIN -->
             <th:block sec:authorize="hasRole('ADMIN')">
-              <a th:href="@{'/admin/courses/edit/' + ${course.id}}"
+              <a th:href="@{'/admin/course/edit/' + ${course.id}}"
                  class="btn btn-outline-primary btn-sm w-100">
                 <i class="bi bi-pencil me-1"></i>Chỉnh sửa
               </a>

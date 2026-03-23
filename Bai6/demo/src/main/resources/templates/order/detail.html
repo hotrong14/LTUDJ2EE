@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Chi tiết đơn hàng – Gunner Store</title>
+<style>
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .info-block h6 {
+        font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+        letter-spacing:1px; color:var(--mid); font-size:.78rem; margin-bottom:12px;
+        padding-bottom:6px; border-bottom:2px solid var(--border);
+    }
+    .info-row { display:flex; justify-content:space-between; font-size:.9rem; margin-bottom:6px; }
+    .info-row span:first-child { color:var(--mid); }
+    .info-row span:last-child  { font-weight:600; }
+    .status-badge {
+        background:#e8f5e9; color:#2e7d32;
+        font-family:var(--font-display); font-weight:700; font-size:.78rem;
+        letter-spacing:.5px; text-transform:uppercase;
+        padding:4px 12px; border-radius:20px; border:1px solid #a5d6a7;
+    }
+    .total-final {
+        font-family:var(--font-display); font-size:1.4rem; font-weight:800; color:var(--red-deep);
+    }
+    .success-banner {
+        background:linear-gradient(135deg, var(--red-deep), var(--red));
+        border-radius:var(--radius); color:#fff; padding:24px;
+        display:flex; align-items:center; gap:16px; margin-bottom:24px;
+    }
+    .success-banner .icon { font-size:2.5rem; }
+    .success-banner h5 {
+        font-family:var(--font-display); font-weight:800; letter-spacing:1px;
+        text-transform:uppercase; color:var(--gold); margin:0 0 4px;
+    }
+    .success-banner p { margin:0; opacity:.85; font-size:.9rem; }
+</style>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="page-header">
+        <h1 class="page-title">Đơn <span>hàng #<span th:text="${order.id}"></span></span></h1>
+        <a th:href="@{/products}" class="btn btn-primary">Tiếp tục mua sắm →</a>
+    </div>
+
+    <!-- Success banner -->
+    <div class="success-banner">
+        <div class="icon">✓</div>
+        <div>
+            <h5>Đặt hàng thành công!</h5>
+            <p>Cảm ơn bạn đã tin tưởng Gunner Store. Chúng tôi sẽ liên hệ xác nhận giao hàng sớm nhất.</p>
+        </div>
+    </div>
+
+    <!-- Info grid -->
+    <div class="info-grid mb-4">
+        <div class="card p-4 info-block">
+            <h6>Thông tin đơn hàng</h6>
+            <div class="info-row">
+                <span>Mã đơn hàng</span>
+                <span>#<span th:text="${order.id}"></span></span>
+            </div>
+            <div class="info-row">
+                <span>Ngày đặt</span>
+                <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+            <div class="info-row">
+                <span>Trạng thái</span>
+                <span class="status-badge">Đã xác nhận</span>
+            </div>
+        </div>
+        <div class="card p-4 info-block">
+            <h6>Khách hàng</h6>
+            <div class="info-row">
+                <span>Tài khoản</span>
+                <span th:text="${order.account.loginName}"></span>
+            </div>
+            <div class="info-row">
+                <span>Vận chuyển</span>
+                <span style="color:#2e7d32;font-weight:700;">Miễn phí</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items -->
+    <div class="card mb-4">
+        <div class="p-4 border-bottom">
+            <h6 style="font-family:var(--font-display);font-weight:800;text-transform:uppercase;
+                        letter-spacing:1px;color:var(--mid);margin:0;">
+                Danh sách sản phẩm
+            </h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="detail : ${order.orderDetails}">
+                    <td style="font-weight:600;" th:text="${detail.product.name}"></td>
+                    <td style="color:var(--mid);"
+                        th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                    <td th:text="${detail.quantity}"></td>
+                    <td style="font-family:var(--font-display);font-weight:700;color:var(--red);"
+                        th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total -->
+        <div class="p-4 border-top">
+            <div class="row justify-content-end">
+                <div class="col-auto">
+                    <div class="d-flex justify-content-between gap-5 mb-1" style="font-size:.9rem;">
+                        <span style="color:var(--mid);">Tổng sản phẩm</span>
+                        <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    </div>
+                    <div class="d-flex justify-content-between gap-5 mb-3" style="font-size:.9rem;">
+                        <span style="color:var(--mid);">Phí vận chuyển</span>
+                        <span style="color:#2e7d32;font-weight:600;">Miễn phí</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between gap-5 total-final">
+                        <span>Tổng cộng</span>
+                        <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

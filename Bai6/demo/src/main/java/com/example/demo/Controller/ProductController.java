@@ -7,6 +7,9 @@ import com.example.demo.Service.ProductService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,9 +32,60 @@ public class ProductController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        List<Product> products = productService.getAll();
-        model.addAttribute("products", products);
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) Integer categoryId,
+                       @RequestParam(required = false, defaultValue = "all") String sort,
+                       @RequestParam(required = false, defaultValue = "0") int page,
+                       Model model) {
+
+        int pageSize = 5;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> productPage;
+
+        // Luôn set sort vào model để giữ trạng thái trên UI
+        model.addAttribute("sort", sort);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categoryId", categoryId);
+
+        if ("price_asc".equals(sort) || "price_desc".equals(sort)) {
+            // Sắp xếp theo giá — trả về List, không phân trang
+            List<Product> products = "price_asc".equals(sort)
+                    ? productService.getAllSortedByPriceAsc()
+                    : productService.getAllSortedByPriceDesc();
+            model.addAttribute("products", products);
+
+        } else if (keyword != null && !keyword.isEmpty()) {
+            // Tìm kiếm theo keyword có phân trang
+            productPage = productService.searchByKeyword(keyword, pageable);
+            model.addAttribute("products", productPage.getContent());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", productPage.getTotalPages());
+            model.addAttribute("hasPrevious", productPage.hasPrevious());
+            model.addAttribute("hasNext", productPage.hasNext());
+
+        } else if (categoryId != null) {
+            // Lọc theo danh mục có phân trang
+            Category category = categoryService.getById(categoryId);
+            if (category != null) {
+                productPage = productService.getByCategory(category, pageable);
+                model.addAttribute("products", productPage.getContent());
+                model.addAttribute("currentPage", page);
+                model.addAttribute("totalPages", productPage.getTotalPages());
+                model.addAttribute("hasPrevious", productPage.hasPrevious());
+                model.addAttribute("hasNext", productPage.hasNext());
+            }
+
+        } else {
+            // Hiển thị tất cả sản phẩm với phân trang
+            productPage = productService.getAllWithPagination(pageable);
+            model.addAttribute("products", productPage.getContent());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", productPage.getTotalPages());
+            model.addAttribute("hasPrevious", productPage.hasPrevious());
+            model.addAttribute("hasNext", productPage.hasNext());
+        }
+
+        model.addAttribute("categories", categoryService.getAll());
         return "product/list";
     }
 

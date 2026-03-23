@@ -17,6 +17,47 @@
         </a>
     </div>
 
+    <!-- Thanh tìm kiếm, lọc, sắp xếp -->
+    <div class="card p-3 mb-4">
+        <form method="get" th:action="@{/products}" class="row g-3">
+            <!-- Tìm kiếm theo keyword -->
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="keyword"
+                       th:value="${keyword}" placeholder="Tìm kiếm sản phẩm...">
+            </div>
+
+            <!-- Lọc theo danh mục -->
+            <div class="col-md-3">
+                <select class="form-select" name="categoryId">
+                    <option value="">-- Chọn danh mục --</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}"
+                            th:selected="${categoryId == cat.id}" th:text="${cat.name}"></option>
+                </select>
+            </div>
+
+            <!-- Sắp xếp -->
+            <div class="col-md-3">
+                <select class="form-select" name="sort">
+                    <option value="all" th:selected="${sort == 'all' or sort == null}">-- Mặc định --</option>
+                    <optgroup label="Theo giá">
+                        <option value="price_asc"  th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
+                        <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần</option>
+                    </optgroup>
+                    <!-- <optgroup label="Theo tên">
+                        <option value="name_asc"   th:selected="${sort == 'name_asc'}">Tên A → Z</option>
+                        <option value="name_desc"  th:selected="${sort == 'name_desc'}">Tên Z → A</option>
+                    </optgroup> -->
+                </select>
+            </div>
+
+            <!-- Nút tìm kiếm -->
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                <a th:href="@{/products}" class="btn btn-secondary w-100 mt-2">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+
     <div th:if="${#lists.isEmpty(products)}" class="alert alert-info">
         Hiện chưa có sản phẩm nào.
         <a th:href="@{/products/add}" class="fw-bold">Thêm ngay</a>
@@ -35,37 +76,50 @@
                     <th>Thao tác</th>
                 </tr>
                 </thead>
-
                 <tbody>
                 <tr th:each="product : ${products}">
                     <td th:text="${product.id}"></td>
                     <td th:text="${product.name}"></td>
                     <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-
                     <td>
-                        <img th:src="@{'/assets/' + ${product.image}}"
-                            width="120"
-                            class="img-thumbnail">
+                        <img th:src="@{'/assets/' + ${product.image}}" width="120" class="img-thumbnail">
                     </td>
-
                     <td th:text="${product.category != null ? product.category.name : '-'}"></td>
-
                     <td class="text-center">
-                        <a th:href="@{/products/edit/{id}(id=${product.id})}"
-                           class="btn btn-sm btn-primary">
-                            Chỉnh sửa
-                        </a>
-
+                        <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post" style="display:inline;">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-sm btn-info">Thêm vào giỏ</button>
+                        </form>
+                        <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-sm btn-primary">Chỉnh sửa</a>
                         <a th:href="@{/products/delete/{id}(id=${product.id})}"
                            class="btn btn-sm btn-danger"
-                           onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
-                            Xóa
-                        </a>
+                           onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">Xóa</a>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Phân trang -->
+        <nav th:if="${totalPages != null and totalPages > 1}" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/products(keyword=${keyword}, categoryId=${categoryId}, sort=${sort}, page=${currentPage - 1})}">
+                        Previous
+                    </a>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                </li>
+                <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/products(keyword=${keyword}, categoryId=${categoryId}, sort=${sort}, page=${currentPage + 1})}">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 
 </div>

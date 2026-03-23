@@ -1,104 +1,360 @@
 <!DOCTYPE html>
 <html lang="vi"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAI5 - Arsenal Style</title>
+    <title>Gunner Store</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --arsenal-red: #EF0107;
-            --arsenal-dark-red: #B00000;
-            --arsenal-white: #FFFFFF;
-            --arsenal-light: #F5F5F5;
+            --red:        #DB0007;
+            --red-dark:   #9A0005;
+            --red-deep:   #6B0004;
+            --gold:       #C8A84B;
+            --gold-light: #E8C96A;
+            --ivory:      #FAF8F5;
+            --smoke:      #F0EDE8;
+            --charcoal:   #1A1A1A;
+            --mid:        #555;
+            --border:     #E0DBD4;
+
+            --font-display: 'Barlow Condensed', sans-serif;
+            --font-body:    'Barlow', sans-serif;
+
+            --shadow-sm:  0 1px 4px rgba(0,0,0,0.08);
+            --shadow-md:  0 4px 16px rgba(0,0,0,0.12);
+            --shadow-lg:  0 8px 32px rgba(0,0,0,0.16);
+            --radius:     10px;
+            --radius-sm:  6px;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: var(--arsenal-light);
-            font-family: 'Segoe UI', sans-serif;
+            background: var(--ivory);
+            font-family: var(--font-body);
+            color: var(--charcoal);
         }
 
-        main {
-            flex: 1;
-        }
+        main { flex: 1; }
 
-        /* NAVBAR */
+        /* ── NAVBAR ── */
         .navbar {
-            background: linear-gradient(90deg, var(--arsenal-red), var(--arsenal-dark-red));
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: var(--red-deep);
+            padding: 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            border-bottom: 3px solid var(--gold);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar .container {
+            height: 64px;
         }
 
         .navbar-brand {
-            color: var(--arsenal-white) !important;
-            font-weight: bold;
-            font-size: 20px;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff !important;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
-            letter-spacing: 1px;
+            gap: 10px;
+        }
+
+        .navbar-brand .brand-cannon {
+            color: var(--gold);
         }
 
         .logo-arsenal {
-            width: 42px;
-            margin-right: 10px;
-            transition: 0.3s;
+            width: 38px;
+            filter: drop-shadow(0 0 6px rgba(200,168,75,0.4));
+            transition: transform 0.3s;
         }
-
-        .logo-arsenal:hover {
-            transform: scale(1.1) rotate(-5deg);
-        }
+        .logo-arsenal:hover { transform: scale(1.12) rotate(-6deg); }
 
         .navbar-nav .nav-link {
-            color: var(--arsenal-white) !important;
-            font-weight: 500;
-            transition: 0.3s;
-            padding: 8px 14px;
-            border-radius: 6px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.85) !important;
+            padding: 0 16px !important;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -3px;
+            transition: color 0.2s, border-color 0.2s;
         }
 
-        .navbar-nav .nav-link:hover {
-            background-color: var(--arsenal-white);
-            color: var(--arsenal-red) !important;
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: #fff !important;
+            border-bottom-color: var(--gold);
         }
 
-        /* BUTTON STYLE */
-        .btn-primary,
+        .cart-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cart-count {
+            background: var(--gold);
+            color: var(--red-deep);
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* ── FLASH MESSAGES ── */
+        .flash-bar {
+            padding: 10px 0;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        .flash-success { background: #e8f5e9; color: #2e7d32; border-bottom: 2px solid #a5d6a7; }
+        .flash-error   { background: #fdecea; color: #c62828; border-bottom: 2px solid #ef9a9a; }
+
+        /* ── CARDS ── */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            background: #fff;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.18s;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--red-dark);
+            border-color: var(--red-dark);
+            box-shadow: 0 4px 12px rgba(219,0,7,0.3);
+        }
+
         .btn-success {
-            background-color: var(--arsenal-red);
-            border-color: var(--arsenal-red);
-            font-weight: 500;
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
         }
-
-        .btn-primary:hover,
         .btn-success:hover {
-            background-color: var(--arsenal-dark-red);
-            border-color: var(--arsenal-dark-red);
+            background: var(--red-dark);
+            border-color: var(--red-dark);
         }
 
-        /* TABLE HEADER */
-        .table-dark {
-            background-color: var(--arsenal-red);
+        .btn-outline-secondary {
+            border-color: var(--border);
+            color: var(--mid);
+        }
+        .btn-outline-secondary:hover {
+            background: var(--smoke);
+            border-color: #ccc;
+            color: var(--charcoal);
         }
 
-        /* CARD SHADOW */
-        .card, .table {
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        .btn-danger {
+            background: var(--red);
+            border-color: var(--red);
+        }
+        .btn-danger:hover {
+            background: var(--red-dark);
+            border-color: var(--red-dark);
+        }
+
+        .btn-info {
+            background: #fff;
+            border: 1.5px solid var(--gold);
+            color: var(--red-deep);
+            font-weight: 700;
+        }
+        .btn-info:hover {
+            background: var(--gold);
+            color: #fff;
+            border-color: var(--gold);
+        }
+
+        .btn-warning {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #fff;
+        }
+        .btn-warning:hover {
+            background: #b89440;
+            border-color: #b89440;
+        }
+
+        /* ── TABLE ── */
+        .table thead th {
+            background: var(--red-deep);
+            color: #fff;
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+            border: none;
+            padding: 12px 16px;
+        }
+
+        .table thead th:first-child { border-radius: 8px 0 0 0; }
+        .table thead th:last-child  { border-radius: 0 8px 0 0; }
+
+        .table tbody tr {
+            transition: background 0.15s;
+        }
+        .table tbody tr:hover {
+            background: #fdf5f5;
+        }
+
+        .table tbody td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-color: var(--border);
+            font-size: 0.9rem;
+        }
+
+        /* ── FORM CONTROLS ── */
+        .form-control, .form-select {
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--charcoal);
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(219,0,7,0.1);
+        }
+
+        .form-label {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.88rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--mid);
+            margin-bottom: 6px;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--red-deep);
+            margin: 0;
+        }
+
+        .page-title span {
+            color: var(--gold);
+        }
+
+        /* ── PAGINATION ── */
+        .pagination .page-link {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--red);
+            border-color: var(--border);
+            border-radius: var(--radius-sm) !important;
+            margin: 0 2px;
+        }
+        .pagination .page-item.active .page-link {
+            background: var(--red);
+            border-color: var(--red);
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #bbb;
+        }
+
+        /* ── BADGE ── */
+        .badge-arsenal {
+            background: var(--red);
+            color: #fff;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        /* ── ALERTS ── */
+        .alert {
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            border-left-width: 4px;
+        }
+
+        /* ── IMG THUMBNAIL ── */
+        .img-thumbnail {
             border-radius: 8px;
+            border-color: var(--border);
         }
 
-        /* FOOTER */
+        /* ── FOOTER ── */
         footer {
-            background-color: var(--arsenal-red);
-            color: var(--arsenal-white);
-            font-weight: 500;
+            background: var(--red-deep);
+            border-top: 3px solid var(--gold);
+            color: rgba(255,255,255,0.75);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 18px 0;
+        }
+
+        footer .footer-brand {
+            color: var(--gold);
+            font-weight: 700;
         }
     </style>
 </head>
@@ -107,52 +363,62 @@
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg">
-    <div class="container">
+    <div class="container d-flex align-items-center">
 
-        <a class="navbar-brand" th:href="@{/products}">
-            <img th:src="@{/assets/arsenal.png}"
-                alt="Arsenal Logo"
-                class="logo-arsenal">
-            BAI5
+        <a class="navbar-brand me-4" th:href="@{/products}">
+            <img th:src="@{/assets/arsenal.png}" alt="Arsenal" class="logo-arsenal">
+            GUNNER <span class="brand-cannon">STORE</span>
         </a>
 
-        <button class="navbar-toggler bg-light" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarNav">
+        <button class="navbar-toggler border-0" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                style="filter:invert(1)">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/products}">
-                        Danh sách sản phẩm
+                    <a class="nav-link" th:href="@{/products}">Sản phẩm</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/products/add}">Thêm mới</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link cart-badge" th:href="@{/cart}">
+                        🛒 Giỏ hàng
                     </a>
                 </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/products/add}">
-                        Thêm sản phẩm
-                    </a>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="nav-link border-0 bg-transparent" style="cursor:pointer;">
+                            Đăng xuất
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>
-
     </div>
 </nav>
 
+<!-- FLASH MESSAGES -->
+<div th:if="${success}" class="flash-bar flash-success">
+    ✓ &nbsp;<span th:text="${success}"></span>
+</div>
+<div th:if="${error}" class="flash-bar flash-error">
+    ✕ &nbsp;<span th:text="${error}"></span>
+</div>
+
 <!-- CONTENT -->
-<main class="container mt-4 mb-4">
-    <div layout:fragment="content">
-    </div>
+<main class="container mt-4 mb-5">
+    <div layout:fragment="content"></div>
 </main>
 
 <!-- FOOTER -->
-<footer class="text-center py-3">
-    2026 - Phát triển ứng dụng với J2EE | Gunner Store
+<footer class="text-center">
+    <span class="footer-brand">Gunner Store</span> &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; Phát triển ứng dụng với J2EE
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
-</html>
+</html> 

@@ -1,7 +1,11 @@
 package com.example.demo.Service;
 
 import com.example.demo.Model.Product;
+import com.example.demo.Model.Category;
 import com.example.demo.Repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,4 +66,39 @@ public class ProductService {
 
     return fileName; // Chỉ trả về tên file
 }
+
+	// Tìm kiếm theo keyword
+	public List<Product> searchByKeyword(String keyword) {
+		return productRepository.findByNameContainingIgnoreCase(keyword);
+	}
+
+	// Tìm kiếm theo keyword với phân trang
+	public Page<Product> searchByKeyword(String keyword, Pageable pageable) {
+		return productRepository.findByNameContainingIgnoreCase(keyword, pageable);
+	}
+
+	// Lấy tất cả sản phẩm với phân trang
+	public Page<Product> getAllWithPagination(Pageable pageable) {
+		return productRepository.findAll(pageable);
+	}
+
+	// Lọc theo danh mục
+	public List<Product> getByCategory(Category category) {
+		return productRepository.findByCategory(category);
+	}
+
+	// Lọc theo danh mục với phân trang
+	public Page<Product> getByCategory(Category category, Pageable pageable) {
+		return productRepository.findByCategory(category, pageable);
+	}
+
+	// Sắp xếp theo giá tăng dần
+	public List<Product> getAllSortedByPriceAsc() {
+		return productRepository.findAll(Sort.by(Sort.Direction.ASC, "price"));
+	}
+
+	// Sắp xếp theo giá giảm dần
+	public List<Product> getAllSortedByPriceDesc() {
+		return productRepository.findAll(Sort.by(Sort.Direction.DESC, "price"));
+	}
 }
